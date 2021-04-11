@@ -23,9 +23,7 @@ Art’s original analysis, he referenced a package `covid19nytimes` to
 access the COVID-19 data from the [NY
 Times](https://github.com/nytimes/covid-19-data.git). That package,
 however, has been removed from the CRAN repository (“for policy
-violation”). I have cloned the Github repository referenced above and
-have replaced the data load calls in Art’s code with direct references
-to my local version of the data.
+violation”).
 
 ``` r
 knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
@@ -37,13 +35,14 @@ library(timetk)
 library(lubridate)
 library(broom)
 library(knitr)
-library(gt)
+# - gt() has problems rendering to markdown - library(gt)
 
-table_style <- list(cell_text(font = "Arial", size = "small"))
+
+# table_style <- list(cell_text(font = "Arial", size = "small"))
 
 # source https://github.com/nytimes/covid-19-data.git
 # - replaced - us_states_long <- covid19nytimes::refresh_covid19nytimes_states()
-us_states_long <- read.csv("../covid-19-data/us-states.csv", 
+us_states_long <- read.csv("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv", 
                            col.names = c("date","location","fips","cases_total","deaths_total"),
                            colClasses = c("Date","character","integer","double","double"))
 
@@ -68,75 +67,28 @@ us_states_long <- us_states_long %>% filter(!(location %in% territories))
 save(us_states_long, file = "us_states_long.rdata")
 us_states_long %>%
   head() %>%
-  gt() %>%
-  tab_options(table.width = "100%") %>%
-  tab_style(style = table_style, 
-            locations = cells_body()) %>% 
-  opt_all_caps()
+  kable()
 ```
 
-<<<<<<< HEAD
-=======
-</style>
->>>>>>> e35f267af5b00a796660502ec716ae5c43755051
-<div id="jfmidjsdye" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
-  
-  <thead class="gt_col_headings">
-    <tr>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">date</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">location</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1">fips</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">cases_total</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">deaths_total</th>
-    </tr>
-  </thead>
-  <tbody class="gt_table_body">
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-15</td>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">Alabama</td>
-      <td class="gt_row gt_center" style="font-family: Arial; font-size: small;">1</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">23</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-15</td>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">Alaska</td>
-      <td class="gt_row gt_center" style="font-family: Arial; font-size: small;">2</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">1</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-15</td>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">Arizona</td>
-      <td class="gt_row gt_center" style="font-family: Arial; font-size: small;">4</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">13</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-15</td>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">Arkansas</td>
-      <td class="gt_row gt_center" style="font-family: Arial; font-size: small;">5</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">16</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-15</td>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">California</td>
-      <td class="gt_row gt_center" style="font-family: Arial; font-size: small;">6</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">478</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">6</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-15</td>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">Colorado</td>
-      <td class="gt_row gt_center" style="font-family: Arial; font-size: small;">8</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">136</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">2</td>
-    </tr>
-  </tbody>
-  
-  
-</table></div>
+| date       | location   | fips | cases\_total | deaths\_total |
+|:-----------|:-----------|-----:|-------------:|--------------:|
+| 2020-03-15 | Alabama    |    1 |           23 |             0 |
+| 2020-03-15 | Alaska     |    2 |            1 |             0 |
+| 2020-03-15 | Arizona    |    4 |           13 |             0 |
+| 2020-03-15 | Arkansas   |    5 |           16 |             0 |
+| 2020-03-15 | California |    6 |          478 |             6 |
+| 2020-03-15 | Colorado   |    8 |          136 |             2 |
+
+``` r
+# - I swapped all of the calls from gt() to kable() in Art's original code because 
+# there seems to be a problem rendering to markdown -
+
+#  gt() %>%
+#  tab_options(table.width = "100%") %>%
+#  tab_style(style = table_style, 
+#            locations = cells_body()) %>% 
+#  opt_all_caps()
+```
 
 Here Art wrangles the raw data to add in 7-day rolling cases and deaths
 counts. The data directly from the NY Times site is not in the same
@@ -176,106 +128,30 @@ us <- us_states %>%
   ))
 
 us[10:20, ] %>%
-  gt() %>%
-  tab_options(table.width = "80%") %>%
-  tab_style(style = table_style, 
-            locations = cells_body()) %>% 
-  opt_all_caps()
+  kable()
 ```
 
-<div id="miunxvhuox" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
-  
-  <thead class="gt_col_headings">
-    <tr>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">date</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">cases_total</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">deaths_total</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">cases_7day</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">deaths_7day</th>
-    </tr>
-  </thead>
-  <tbody class="gt_table_body">
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-24</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">53906</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">784</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">6857.571</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">95.28571</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-25</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">68540</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">1053</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">8599.714</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">127.28571</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-26</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">85521</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">1352</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">10448.571</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">162.85714</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-27</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">102847</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">1769</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">12121.286</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">213.14286</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-28</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">123907</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">2299</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">14199.143</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">277.00000</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-29</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">142426</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">2717</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">15625.714</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">322.85714</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-30</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">163893</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">3367</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">17202.429</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">398.42857</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-31</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">188320</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">4302</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">19202.000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">502.57143</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-04-01</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">215238</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">5321</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">20956.857</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">609.71429</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-04-02</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">244948</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">6537</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">22775.286</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">740.71429</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-04-03</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">277264</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">7927</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">24916.714</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">879.71429</td>
-    </tr>
-  </tbody>
-  
-  
-</table></div>
+| date       | cases\_total | deaths\_total | cases\_7day | deaths\_7day |
+|:-----------|-------------:|--------------:|------------:|-------------:|
+| 2020-03-24 |        53906 |           784 |    6857.571 |     95.28571 |
+| 2020-03-25 |        68540 |          1053 |    8599.714 |    127.28571 |
+| 2020-03-26 |        85521 |          1352 |   10448.571 |    162.85714 |
+| 2020-03-27 |       102847 |          1769 |   12121.286 |    213.14286 |
+| 2020-03-28 |       123907 |          2299 |   14199.143 |    277.00000 |
+| 2020-03-29 |       142426 |          2717 |   15625.714 |    322.85714 |
+| 2020-03-30 |       163893 |          3367 |   17202.429 |    398.42857 |
+| 2020-03-31 |       188320 |          4302 |   19202.000 |    502.57143 |
+| 2020-04-01 |       215238 |          5321 |   20956.857 |    609.71429 |
+| 2020-04-02 |       244948 |          6537 |   22775.286 |    740.71429 |
+| 2020-04-03 |       277264 |          7927 |   24916.714 |    879.71429 |
+
+``` r
+#  gt() %>%
+#  tab_options(table.width = "80%") %>%
+#  tab_style(style = table_style, 
+#            locations = cells_body()) %>% 
+#  opt_all_caps()
+```
 
 In the following chunks, Art does some exploratory data analyses.
 
@@ -350,50 +226,22 @@ deaths so we have to take that into account.
 # passage of time affects deaths more than cases
 lm(deaths_7day ~ cases_7day + date, data = us) %>%
   tidy() %>%
-  gt() %>% 
-  tab_options(table.width = "60%") %>%
-  tab_style(style = table_style, 
-            locations = cells_body()) %>% 
-  opt_all_caps()
+  kable()
 ```
 
-<div id="rtyrdlbwgb" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
-  
-  <thead class="gt_col_headings">
-    <tr>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">term</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">estimate</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">std.error</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">statistic</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">p.value</th>
-    </tr>
-  </thead>
-  <tbody class="gt_table_body">
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">(Intercept)</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">7.653143e+04</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">1.005355e+04</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">7.612381</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">5.176390e-13</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">cases_7day</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">8.277406e-03</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">1.117389e-03</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">7.407811</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">1.862453e-12</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">date</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">-4.112224e+00</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">5.467092e-01</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">-7.521777</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">9.150367e-13</td>
-    </tr>
-  </tbody>
-  
-  
-</table></div>
+| term        |      estimate |    std.error | statistic | p.value |
+|:------------|--------------:|-------------:|----------:|--------:|
+| (Intercept) | 76531.4269108 | 1.005355e+04 |  7.612381 |       0 |
+| cases\_7day |     0.0082774 | 1.117400e-03 |  7.407811 |       0 |
+| date        |    -4.1122243 | 5.467092e-01 | -7.521777 |       0 |
+
+``` r
+#  gt() %>% 
+#  tab_options(table.width = "60%") %>%
+#  tab_style(style = table_style, 
+#            locations = cells_body()) %>% 
+#  opt_all_caps()
+```
 
 His solution is to run regression models of deaths and varying leads of
 cases. He chooses to lead deaths as opposed to lagging cases because it
@@ -415,121 +263,29 @@ names(us_lags) <- names(us_lags) %>% str_replace_all("lag-|lag", "lead")
 us_lags <- us_lags %>% filter(date < cutoff_end - max_lead)
 
 us_lags[1:10, 1:7] %>%
-  gt() %>% 
-  tab_options(table.width = "100%") %>%
-  tab_style(style = table_style, 
-            locations = cells_body()) %>% 
-  opt_all_caps()
+  kable()
 ```
 
-<div id="fzuwvfkcrq" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
-  
-  <thead class="gt_col_headings">
-    <tr>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">date</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">cases_total</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">deaths_total</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">cases_7day</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">deaths_7day</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">deaths_7day_lead0</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">deaths_7day_lead1</th>
-    </tr>
-  </thead>
-  <tbody class="gt_table_body">
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-15</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">3597</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">68</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-16</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">4504</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">91</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-17</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">5903</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">117</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-18</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">8342</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">162</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-19</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">12381</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">212</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-20</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">17998</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">277</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-21</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">24513</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">360</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.00000</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">55.57143</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-22</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">33046</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">457</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">4204.714</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">55.57143</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">55.57143</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">69.57143</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-23</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">43476</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">578</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">5565.143</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">69.57143</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">69.57143</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">95.28571</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">2020-03-24</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">53906</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">784</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">6857.571</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">95.28571</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">95.28571</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">127.28571</td>
-    </tr>
-  </tbody>
-  
-  
-</table></div>
+| date       | cases\_total | deaths\_total | cases\_7day | deaths\_7day | deaths\_7day\_lead0 | deaths\_7day\_lead1 |
+|:-----------|-------------:|--------------:|------------:|-------------:|--------------------:|--------------------:|
+| 2020-03-15 |         3597 |            68 |       0.000 |      0.00000 |             0.00000 |             0.00000 |
+| 2020-03-16 |         4504 |            91 |       0.000 |      0.00000 |             0.00000 |             0.00000 |
+| 2020-03-17 |         5903 |           117 |       0.000 |      0.00000 |             0.00000 |             0.00000 |
+| 2020-03-18 |         8342 |           162 |       0.000 |      0.00000 |             0.00000 |             0.00000 |
+| 2020-03-19 |        12381 |           212 |       0.000 |      0.00000 |             0.00000 |             0.00000 |
+| 2020-03-20 |        17998 |           277 |       0.000 |      0.00000 |             0.00000 |             0.00000 |
+| 2020-03-21 |        24513 |           360 |       0.000 |      0.00000 |             0.00000 |            55.57143 |
+| 2020-03-22 |        33046 |           457 |    4204.714 |     55.57143 |            55.57143 |            69.57143 |
+| 2020-03-23 |        43476 |           578 |    5565.143 |     69.57143 |            69.57143 |            95.28571 |
+| 2020-03-24 |        53906 |           784 |    6857.571 |     95.28571 |            95.28571 |           127.28571 |
+
+``` r
+#  gt() %>% 
+#  tab_options(table.width = "100%") %>%
+#  tab_style(style = table_style, 
+#            locations = cells_body()) %>% 
+#  opt_all_caps()
+```
 
 Now he builds linear models and seeing the real power of the tidymodels
 framework. Since we have our lead days in columns we revert back to
@@ -625,58 +381,24 @@ polynomial on the date variable, cases would vanish in importance.”
 
 ``` r
 best_fit$model[[1]] %>% 
-  tidy() %>% 
-  gt() %>% 
-  tab_options(table.width = "80%") %>%
-  tab_style(style = table_style, 
-            locations = cells_body()) %>% 
-  opt_all_caps()
+  tidy() %>%
+  kable()
 ```
 
-<div id="gjcwsyxbfi" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
-  
-  <thead class="gt_col_headings">
-    <tr>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">term</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">estimate</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">std.error</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">statistic</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">p.value</th>
-    </tr>
-  </thead>
-  <tbody class="gt_table_body">
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">(Intercept)</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">4.363549e+02</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">3.798413e+01</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">11.48782</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">4.163504e-24</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">cases_7day</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">1.668541e-02</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">9.924621e-04</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">16.81214</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">5.422361e-41</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">poly(date, 2)1</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">-7.305211e+03</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">2.269860e+02</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">-32.18353</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">5.884348e-84</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_left" style="font-family: Arial; font-size: small;">poly(date, 2)2</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">4.511714e+03</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">1.673881e+02</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">26.95361</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">9.924578e-71</td>
-    </tr>
-  </tbody>
-  
-  
-</table></div>
+| term           |      estimate |   std.error | statistic | p.value |
+|:---------------|--------------:|------------:|----------:|--------:|
+| (Intercept)    |   436.3549254 |  37.9841305 |  11.48782 |       0 |
+| cases\_7day    |     0.0166854 |   0.0009925 |  16.81214 |       0 |
+| poly(date, 2)1 | -7305.2111115 | 226.9860335 | -32.18353 |       0 |
+| poly(date, 2)2 |  4511.7137019 | 167.3880791 |  26.95361 |       0 |
+
+``` r
+#  gt() %>% 
+#  tab_options(table.width = "80%") %>%
+#  tab_style(style = table_style, 
+#            locations = cells_body()) %>% 
+#  opt_all_caps()
+```
 
 Next, he uses `predict` to see how well the model fits to the actual
 deaths.
@@ -929,32 +651,20 @@ Art notes that:
 best_fit_st %>%
   select(-data, -model) %>%
   filter(state == "Ohio") %>%
-  gt() %>% 
-  tab_options(table.width = "50%") %>%
-  tab_style(style = table_style, 
-            locations = cells_body()) %>% 
-  opt_all_caps()
+  kable()
 ```
 
-<div id="kbqmjeicvp" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
-  
-  <thead class="gt_col_headings">
-    <tr>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1">state</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">adj_r</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">lead</th>
-    </tr>
-  </thead>
-  <tbody class="gt_table_body">
-    <tr>
-      <td class="gt_row gt_center" style="font-family: Arial; font-size: small;">Ohio</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">0.7548416</td>
-      <td class="gt_row gt_right" style="font-family: Arial; font-size: small;">31</td>
-    </tr>
-  </tbody>
-  
-  
-</table></div>
+| state |    adj\_r | lead |
+|:------|----------:|-----:|
+| Ohio  | 0.7548416 |   31 |
+
+``` r
+#  gt() %>% 
+#  tab_options(table.width = "50%") %>%
+#  tab_style(style = table_style, 
+#            locations = cells_body()) %>% 
+#  opt_all_caps()
+```
 
 He notes that the NY Times data uses the “case” date - presumably the
 date a positive test is recorded. Ohio, however, uses “onset” date - the

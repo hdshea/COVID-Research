@@ -29,7 +29,7 @@ knitr::opts_chunk$set(
 
 ## Understanding the Data
 
-Art uses the NY Times COVID tracking data set which is updated daily. In Art's original analysis, he referenced a package `covid19nytimes` to access the COVID-19 data from the [NY Times](https://github.com/nytimes/covid-19-data.git).  That package, however, has been removed from the CRAN repository ("for policy violation").  I have cloned the Github repository referenced above and have replaced the data load calls in Art's code with direct references to my local version of the data.
+Art uses the NY Times COVID tracking data set which is updated daily. In Art's original analysis, he referenced a package `covid19nytimes` to access the COVID-19 data from the [NY Times](https://github.com/nytimes/covid-19-data.git).  That package, however, has been removed from the CRAN repository ("for policy violation").  
 
 ```{r rawdata, include = TRUE, warning = FALSE}
 knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
@@ -41,13 +41,14 @@ library(timetk)
 library(lubridate)
 library(broom)
 library(knitr)
-library(gt)
+# - gt() has problems rendering to markdown - library(gt)
 
-table_style <- list(cell_text(font = "Arial", size = "small"))
+
+# table_style <- list(cell_text(font = "Arial", size = "small"))
 
 # source https://github.com/nytimes/covid-19-data.git
 # - replaced - us_states_long <- covid19nytimes::refresh_covid19nytimes_states()
-us_states_long <- read.csv("../covid-19-data/us-states.csv", 
+us_states_long <- read.csv("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv", 
                            col.names = c("date","location","fips","cases_total","deaths_total"),
                            colClasses = c("Date","character","integer","double","double"))
 
@@ -72,11 +73,15 @@ us_states_long <- us_states_long %>% filter(!(location %in% territories))
 save(us_states_long, file = "us_states_long.rdata")
 us_states_long %>%
   head() %>%
-  gt() %>%
-  tab_options(table.width = "100%") %>%
-  tab_style(style = table_style, 
-            locations = cells_body()) %>% 
-  opt_all_caps()
+  kable()
+# - I swapped all of the calls from gt() to kable() in Art's original code because 
+# there seems to be a problem rendering to markdown -
+
+#  gt() %>%
+#  tab_options(table.width = "100%") %>%
+#  tab_style(style = table_style, 
+#            locations = cells_body()) %>% 
+#  opt_all_caps()
 ```
 
 Here Art wrangles the raw data to add in 7-day rolling cases and deaths counts.  The data directly from the NY Times site is not in the same format as the data from the original `covid19nytimes` package that Art used, so I have modified the original code to reflect those changes (notated in the comments below).
@@ -112,11 +117,12 @@ us <- us_states %>%
   ))
 
 us[10:20, ] %>%
-  gt() %>%
-  tab_options(table.width = "80%") %>%
-  tab_style(style = table_style, 
-            locations = cells_body()) %>% 
-  opt_all_caps()
+  kable()
+#  gt() %>%
+#  tab_options(table.width = "80%") %>%
+#  tab_style(style = table_style, 
+#            locations = cells_body()) %>% 
+#  opt_all_caps()
 ```
 
 In the following chunks, Art does some exploratory data analyses.
@@ -178,11 +184,12 @@ Art comments that a problem to consider for modeling is "it looks like the more 
 # passage of time affects deaths more than cases
 lm(deaths_7day ~ cases_7day + date, data = us) %>%
   tidy() %>%
-  gt() %>% 
-  tab_options(table.width = "60%") %>%
-  tab_style(style = table_style, 
-            locations = cells_body()) %>% 
-  opt_all_caps()
+  kable()
+#  gt() %>% 
+#  tab_options(table.width = "60%") %>%
+#  tab_style(style = table_style, 
+#            locations = cells_body()) %>% 
+#  opt_all_caps()
 ```
 
 His solution is to run regression models of deaths and varying leads of cases. He chooses to lead deaths as opposed to lagging cases because it will allow him to make predictions about the future of deaths given cases today.  (Note that in the `tk_augment_lags` function call below there is a `-` in front of max_lead.  This is how he finnagles the lag function to create leads.)
@@ -200,11 +207,12 @@ names(us_lags) <- names(us_lags) %>% str_replace_all("lag-|lag", "lead")
 us_lags <- us_lags %>% filter(date < cutoff_end - max_lead)
 
 us_lags[1:10, 1:7] %>%
-  gt() %>% 
-  tab_options(table.width = "100%") %>%
-  tab_style(style = table_style, 
-            locations = cells_body()) %>% 
-  opt_all_caps()
+  kable()
+#  gt() %>% 
+#  tab_options(table.width = "100%") %>%
+#  tab_style(style = table_style, 
+#            locations = cells_body()) %>% 
+#  opt_all_caps()
 ```
   
 Now he builds linear models and seeing the real power of the tidymodels framework. Since we have our lead days in columns we revert back to long-form data. For each date we have a case count and 40 lead days with the corresponding death count.
@@ -277,12 +285,13 @@ He determines that he is not overfitting the date variable because the significa
 
 ```{r best_fit_confidence, include = TRUE, warning = FALSE}
 best_fit$model[[1]] %>% 
-  tidy() %>% 
-  gt() %>% 
-  tab_options(table.width = "80%") %>%
-  tab_style(style = table_style, 
-            locations = cells_body()) %>% 
-  opt_all_caps()
+  tidy() %>%
+  kable()
+#  gt() %>% 
+#  tab_options(table.width = "80%") %>%
+#  tab_style(style = table_style, 
+#            locations = cells_body()) %>% 
+#  opt_all_caps()
 ```
 
 Next, he uses `predict` to see how well the model fits to the actual deaths.
@@ -492,11 +501,12 @@ Art notes that:
 best_fit_st %>%
   select(-data, -model) %>%
   filter(state == "Ohio") %>%
-  gt() %>% 
-  tab_options(table.width = "50%") %>%
-  tab_style(style = table_style, 
-            locations = cells_body()) %>% 
-  opt_all_caps()
+  kable()
+#  gt() %>% 
+#  tab_options(table.width = "50%") %>%
+#  tab_style(style = table_style, 
+#            locations = cells_body()) %>% 
+#  opt_all_caps()
 ```
 
 He notes that the NY Times data uses the "case" date - presumably the date a positive test is recorded.  Ohio, however, uses "onset" date - the date the "illness began."  These dates are not necessarily the same.  The Ohio data are available [_here_](https://coronavirus.ohio.gov/static/dashboards/COVIDSummaryData.csv).
