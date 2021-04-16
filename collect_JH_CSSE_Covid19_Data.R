@@ -52,7 +52,7 @@ us_states <- us_states %>%
     Recovered_7 = (Recovered - lag(Recovered, 7)) / 7,
     Active_7 = (Active - lag(Active, 7)) / 7,
     Incident_Rate_7 = (Incident_Rate - lag(Incident_Rate, 7)) / 7,
-    Case_Fatality_Ratio_7 = (Deaths_7 *100) / Confirmed_7,
+    Case_Fatality_Ratio_7 = (Deaths_7 * 100) / Confirmed_7,
     Testing_Rate_7 = (Testing_Rate - lag(Testing_Rate, 7)) / 7
   )
 
@@ -62,7 +62,7 @@ us <- us_states %>%
   group_by(Date) %>%
   summarize(across(
     .cols = where(is.double),
-    .fns = function(x) sum(x, na.rm = T),
+    .fns = function(x) sum(x),
     .names = "{col}"
   ))
 

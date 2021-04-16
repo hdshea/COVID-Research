@@ -29,7 +29,9 @@ knitr::opts_chunk$set(
 
 ## Johns Hopkins CSSE COVID-19 Data
 
-### Field description
+## Dataset Overview
+
+### Data Sets field descriptions
 
 * State - The name of the State within the USA.
 * Date - The most recent date the file was pushed.
@@ -44,87 +46,37 @@ knitr::opts_chunk$set(
 * Case_Fatality_Ratio - Number recorded deaths * 100/ Number confirmed cases.
 * Testing_Rate - Total test results per 100,000 persons. The "total test results" are equal to "Total test results (Positive + Negative)" from COVID Tracking Project.
 
-```{r rawdata, include = TRUE, warning = FALSE}
+## Example Data
+
+```{r rawdata, include = TRUE, warning = FALSE, echo = FALSE}
 # source https://github.com/CSSEGISandData/COVID-19
 
-csse_raw <- "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us"
-csse_dir <- "https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports_us"
-exclusions <- c("Diamond Princess", "Grand Princess" , "American Samoa", "Guam", "Northern Mariana Islands", "Recovered",
-                "Virgin Islands", "Puerto Rico")
-col_names <- c("State", "Country", "Date", "Lat", "Long_", "Confirmed", "Deaths", "Recovered", "Active", "FIPS", 
-               "Incident_Rate", "Total_Test_Results", "People_Hospitalized", "Case_Fatality_Ratio", "UID", "ISO3", 
-               "Testing_Rate", "Hospitalization_Rate")
-col_classes <- c("character", "character", "Date", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-                 "numeric", "numeric", "numeric", "numeric", "numeric", "character",
-                 "numeric", "numeric")
+# The r-script collect_JH_CSSE_Covid19_data.R is run daily at 4:00am via GitActions.  
+# This process scrapes the JH CSSE site for data files and loads the US Data into data 
+# frames and saves those to the Data directory.  The following lines load those data
+# frames for this session.
 
-# This is unsatisfying, but it works - extract data file names from CSSE GitHub site
-req <- GET(csse_dir)
-stop_for_status(req)
-fname <- tempfile(fileext = ".txt")
-write_file(req$content, fname)
-file_names <- tibble(text = readLines(fname)) %>%
-  filter(str_detect(text,".csv")) %>%
-  mutate(text = str_match(str_match(str_trim(text),"title=\"[1234567890-]*.csv\""),"[1234567890-]*.csv"))
-unlink(fname)
-rm(req, fname, csse_dir)
-
-for(idx in seq_along(file_names$text)) {
-  if(idx == 1) {
-    us_states <- tibble(read.csv(paste(csse_raw, file_names[idx,], sep = "/"), col.names = col_names, colClasses = col_classes)) %>% 
-      filter(!(State %in% exclusions)) %>% 
-      select(-Country, -FIPS, -UID, -ISO3, -People_Hospitalized, -Hospitalization_Rate)
-  } else {
-    new_date <- tibble(read.csv(paste(csse_raw, file_names[idx,], sep = "/"), col.names = col_names, colClasses = col_classes)) %>% 
-      filter(!(State %in% exclusions)) %>% 
-      select(-Country, -FIPS, -UID, -ISO3, -People_Hospitalized, -Hospitalization_Rate)
-
-    us_states <- rbind(us_states, new_date)
-  }
-}
-rm(file_names, csse_raw, exclusions, col_names, col_classes, idx, new_date)
-
-us_states[10:20,] %>% kable()
+load("Data/jh_us_states.rdata")
+load("Data/jh_us.rdata")
 ```
 
-# Exploratory Data Analyses
+### National Level Data
 
-```{r adjdata, include = TRUE, warning = FALSE}
-
-# Create rolling average changes
-us_states <- us_states %>% 
-  mutate(State = as_factor(State)) %>%
-  arrange(State, Date) %>% 
-  group_by(State) %>% 
-  mutate(
-    Confirmed_7 = (Confirmed - lag(Confirmed, 7)) / 7,
-    Deaths_7 = (Deaths - lag(Deaths, 7)) / 7,
-    Recovered_7 = (Recovered - lag(Recovered, 7)) / 7,
-    Active_7 = (Active - lag(Active, 7)) / 7,
-    Incident_Rate_7 = (Incident_Rate - lag(Incident_Rate, 7)) / 7,
-    Case_Fatality_Ratio_7 = (Deaths_7 *100) / Confirmed_7,
-    Testing_Rate_7 = (Testing_Rate - lag(Testing_Rate, 7)) / 7
-  )
-
-#Create a national aggregate data set
-us <- us_states %>%
-  select(-Lat, -Long_) %>% 
-  group_by(Date) %>%
-  summarize(across(
-    .cols = where(is.double),
-    .fns = function(x) sum(x, na.rm = T),
-    .names = "{col}"
-  ))
-
-save(us_states, file = "Data/jh_us_states.rdata")
-save(us, file = "Data/jh_us.rdata")
-
-us[10:20,] %>% kable()
+```{r us_sample, include = TRUE, warning = FALSE, echo = FALSE}
+us[1:8,] %>% kable()
 ```
 
-# Basic Data Plots
+### State Level Data
 
-```{r plots, include = TRUE, warning = FALSE}
+```{r state_sample, include = TRUE, warning = FALSE, echo = FALSE}
+us_states[1:8,] %>% kable()
+```
+
+## Exploratory Data Analyses
+
+### US Cases versus Deaths
+
+```{r us_cases_and_deaths, include = TRUE, warning = FALSE, echo = FALSE}
 coeff <- 30
 g <- us %>%
   ggplot(aes(Date, Confirmed_7)) +
@@ -146,9 +98,107 @@ g <- us %>%
   labs(
     title = "U.S. Cases vs. Deaths",
     subtitle = "7-Day Average",
-    caption = "Source: JH CSSE",
+    caption = "Source:  Johns Hopkins University - Center for Systems Science and Engineering (CSSE)",
     x = "Date"
   )
 show(g)
 ```
 
+### US Fatality Ratio - Deaths as a Percent of Confirmed Cases
+
+```{r us_fatality_ratio, include = TRUE, warning = FALSE, echo = FALSE}
+us %>%
+  ggplot(aes(Date, Case_Fatality_Ratio_7)) +
+  geom_line() +
+  geom_smooth() +
+  labs(
+    x = "Date", y = "7-Day Average Case Fatality Ratio",
+    caption = "Source:  Johns Hopkins University - Center for Systems Science and Engineering (CSSE)",
+    title = "Fatality Rate:  Deaths as a Percentage of Confirmed Cases"
+  ) +
+  scale_y_continuous(labels = scales::percent, breaks = seq(0, 0.12, by = .01))
+```
+
+### US Testing Rate
+
+```{r us_testing_rate, include = TRUE, warning = FALSE, echo = FALSE}
+us %>%
+  ggplot(aes(Date, Testing_Rate)) +
+  geom_line() +
+  geom_smooth() +
+  labs(
+    x = "Date",
+    caption = "Source:  Johns Hopkins University - Center for Systems Science and Engineering (CSSE)",
+    title = "U.S. Total Test Results per 100,000 Persons"
+  )
+```
+
+### Selected States Cases versus Deaths
+
+```{r states_cases_and_deaths, include = TRUE, warning = FALSE, echo = FALSE}
+# ------------------------------------------
+# select state by state analysis
+state_subset <- c("New York", "Texas", "California", "Ohio", "Florida", "Massachusetts")
+
+# illustrate selected states
+coeff <- 30
+g <- us_states %>%
+  filter(State %in% state_subset) %>%
+  ggplot(aes(Date, Confirmed_7)) +
+  geom_line(color = "orange") +
+  facet_wrap(~State, scales = "free") +
+  theme(legend.position = "none") +
+  geom_line(aes(y = Deaths_7 * coeff), color = "red") +
+  scale_y_continuous(
+    labels = scales::comma,
+    name = "Cases",
+    sec.axis = sec_axis(Deaths_7 ~ . / coeff,
+      name = "Deaths",
+      labels = scales::comma
+    )
+  ) +
+  theme(
+    axis.title.y = element_text(color = "orange", size = 13),
+    axis.title.y.right = element_text(color = "red", size = 13)
+  ) +
+  labs(
+    title = "Selected States Cases vs. Deaths",
+    subtitle = "7-Day Average",
+    caption = "Source:  Johns Hopkins University - Center for Systems Science and Engineering (CSSE)",
+    x = "Date"
+  )
+show(g)
+```
+
+### Selected States Fatality Ratio - Deaths as a Percent of Confirmed Cases
+
+```{r states_fatality_ratio, include = TRUE, warning = FALSE, echo = FALSE}
+us_states %>%
+  filter(State %in% state_subset) %>%
+  ggplot(aes(Date, Case_Fatality_Ratio_7)) +
+  geom_line() +
+  geom_smooth() +
+  facet_wrap(~State, scales = "free") +
+  labs(
+    x = "Date", y = "7-Day Average Case Fatality Ratio",
+    caption = "Source:  Johns Hopkins University - Center for Systems Science and Engineering (CSSE)",
+    title = "Fatality Rate:  Deaths as a Percentage of Confirmed Cases"
+  ) +
+  scale_y_continuous(labels = scales::percent, breaks = seq(0, 0.12, by = .01))
+```
+
+### Selected States Testing Rate
+
+```{r states_testing_rate, include = TRUE, warning = FALSE, echo = FALSE}
+us_states %>%
+  filter(State %in% state_subset) %>%
+  ggplot(aes(Date, Testing_Rate)) +
+  geom_line() +
+  geom_smooth() +
+  facet_wrap(~State, scales = "free") +
+  labs(
+    x = "Date",
+    caption = "Source:  Johns Hopkins University - Center for Systems Science and Engineering (CSSE)",
+    title = "Selected States Total Test Results per 100,000 Persons"
+  )
+```
