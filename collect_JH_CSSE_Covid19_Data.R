@@ -41,6 +41,9 @@ for(idx in seq_along(file_names$text)) {
   }
 }
 
+# create rolling average function
+mean_roll_7 <- slidify(mean, .period = 7, .align = "right")
+
 # Create rolling average changes
 us_states <- us_states %>%
   mutate(State = as_factor(State)) %>%
@@ -52,7 +55,8 @@ us_states <- us_states %>%
     Recovered_7 = (Recovered - lag(Recovered, 7)) / 7,
     Active_7 = (Active - lag(Active, 7)) / 7,
     Incident_Rate_7 = (Incident_Rate - lag(Incident_Rate, 7)) / 7,
-    Case_Fatality_Ratio_7 = (Deaths_7 * 100) / Confirmed_7,
+    Total_Test_Results_7 = (Total_Test_Results - lag(Total_Test_Results, 7)) / 7,
+    Case_Fatality_Ratio_7 = mean_roll_7(Case_Fatality_Ratio),
     Testing_Rate_7 = (Testing_Rate - lag(Testing_Rate, 7)) / 7
   )
 
@@ -60,11 +64,24 @@ us_states <- us_states %>%
 us <- us_states %>%
   select(-Lat, -Long_) %>%
   group_by(Date) %>%
-  summarize(across(
-    .cols = where(is.double),
-    .fns = function(x) sum(x),
-    .names = "{col}"
-  ))
+  summarize(
+    Confirmed = sum(Confirmed),
+    Deaths = sum(Deaths),
+    Recovered = sum(Recovered),
+    Active = sum(Active),
+    Incident_Rate = sum(Incident_Rate),
+    Total_Test_Results = sum(Total_Test_Results),
+    Case_Fatality_Ratio = mean(Case_Fatality_Ratio),
+    Testing_Rate = sum(Testing_Rate),
+    Confirmed_7 = sum(Confirmed_7),
+    Deaths_7 = sum(Deaths_7),
+    Recovered_7 = sum(Recovered_7),
+    Active_7 = sum(Active_7),
+    Incident_Rate_7 = sum(Incident_Rate_7),
+    Total_Test_Results_7 = sum(Total_Test_Results_7),
+    Case_Fatality_Ratio_7 = mean(Case_Fatality_Ratio_7),
+    Testing_Rate_7 = sum(Testing_Rate_7)
+  )
 
 #Output data sets to saved files
 save(us_states, file = "Data/jh_us_states.rdata")

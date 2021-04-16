@@ -112,11 +112,10 @@ us %>%
   geom_line() +
   geom_smooth() +
   labs(
-    x = "Date", y = "7-Day Average Case Fatality Ratio",
+    y = "7-Day Average Case Fatality Ratio",
     caption = "Source:  Johns Hopkins University - Center for Systems Science and Engineering (CSSE)",
     title = "Fatality Rate:  Deaths as a Percentage of Confirmed Cases"
-  ) +
-  scale_y_continuous(labels = scales::percent, breaks = seq(0, 0.12, by = .01))
+  )
 ```
 
 ### US Testing Rate
@@ -127,7 +126,7 @@ us %>%
   geom_line() +
   geom_smooth() +
   labs(
-    x = "Date",
+    y = "Testing Rate",
     caption = "Source:  Johns Hopkins University - Center for Systems Science and Engineering (CSSE)",
     title = "U.S. Total Test Results per 100,000 Persons"
   )
@@ -180,11 +179,10 @@ us_states %>%
   geom_smooth() +
   facet_wrap(~State, scales = "free") +
   labs(
-    x = "Date", y = "7-Day Average Case Fatality Ratio",
+    y = "7-Day Average Case Fatality Ratio",
     caption = "Source:  Johns Hopkins University - Center for Systems Science and Engineering (CSSE)",
     title = "Fatality Rate:  Deaths as a Percentage of Confirmed Cases"
-  ) +
-  scale_y_continuous(labels = scales::percent, breaks = seq(0, 0.12, by = .01))
+  )
 ```
 
 ### Selected States Testing Rate
@@ -197,7 +195,7 @@ us_states %>%
   geom_smooth() +
   facet_wrap(~State, scales = "free") +
   labs(
-    x = "Date",
+    y = "Testing Rate",
     caption = "Source:  Johns Hopkins University - Center for Systems Science and Engineering (CSSE)",
     title = "Selected States Total Test Results per 100,000 Persons"
   )
