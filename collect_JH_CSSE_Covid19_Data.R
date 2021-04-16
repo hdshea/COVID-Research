@@ -71,7 +71,6 @@ us <- us_states %>%
     Active = sum(Active),
     Incident_Rate = sum(Incident_Rate),
     Total_Test_Results = sum(Total_Test_Results),
-    Case_Fatality_Ratio = mean(Case_Fatality_Ratio),
     Testing_Rate = sum(Testing_Rate),
     Confirmed_7 = sum(Confirmed_7),
     Deaths_7 = sum(Deaths_7),
@@ -79,8 +78,13 @@ us <- us_states %>%
     Active_7 = sum(Active_7),
     Incident_Rate_7 = sum(Incident_Rate_7),
     Total_Test_Results_7 = sum(Total_Test_Results_7),
-    Case_Fatality_Ratio_7 = mean(Case_Fatality_Ratio_7),
     Testing_Rate_7 = sum(Testing_Rate_7)
+  ) %>%
+  mutate(
+    Case_Fatality_Ratio = (Deaths * 100) / Confirmed
+  ) %>%
+  mutate(
+    Case_Fatality_Ratio_7 = mean_roll_7(Case_Fatality_Ratio)
   )
 
 #Output data sets to saved files
