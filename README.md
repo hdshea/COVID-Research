@@ -7,4 +7,4 @@ __AS_original_code__ presents Art's original code from the blog.
 
 __JH_CSSE_Covid19_Data__ runs some simialr analyses using data from the COVID-19 Data Repository maintained by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University.
 
-__collect_JH_CSSE_Covid19_Data.R__ is a script that will fully load the US Data in aggregate and by state into Data/jh_us.rdata and Data/jh_us_state.rdata, respectively.  The file .github/workflows/main.yml sets up a GitHub action that runs this script daily at 4:00 and 21:00 so that data are as up to date as possible.
+__collect_JH_CSSE_Covid19_Data.R__ is a script that will fully load the US Data in aggregate and by state into Data/jh_us.rdata and Data/jh_us_state.rdata, respectively.  The file .github/workflows/main.yml sets up a GitHub action that runs this script daily at 4:00am so that data are as up to date as possible.

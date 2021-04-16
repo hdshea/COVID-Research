@@ -1,14 +1,12 @@
-# Hourly scraping
+# Daily scraping
 name: jh_csse_data_scrape
 
 # inspired by: https://github.com/orderlyquant/scrape_thb/
 
 # Controls when the action will run.
 on:
-  # push:
-    # branches: main
   schedule:
-    - cron:  '0 4,21 * * *'
+    - cron:  '0 8 * * *'
     # see: https://crontab.guru/
 
 jobs:
