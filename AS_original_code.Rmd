@@ -70,7 +70,7 @@ us_states_long <- us_states_long %>% filter(date <= cutoff_end)
 # Remove tiny territories
 territories <- c("Guam", "Northern Mariana Islands")
 us_states_long <- us_states_long %>% filter(!(location %in% territories))
-save(us_states_long, file = "us_states_long.rdata")
+# - removed - save(us_states_long, file = "us_states_long.rdata")
 us_states_long %>%
   head() %>%
   kable()
@@ -112,7 +112,8 @@ us <- us_states %>%
   group_by(date) %>%
   summarize(across(
     .cols = where(is.double),
-    .fns = function(x) sum(x, na.rm = T),
+    .fns = function(x) sum(x),  #  Art's original code included ", na.rm = T" in the sum call
+                                # this introduced zeros into the time series which - I believe - was an error
     .names = "{col}"
   ))
 

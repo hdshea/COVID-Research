@@ -73,7 +73,7 @@ us <- us_states %>%
   group_by(date) %>%
   summarize(across(
     .cols = where(is.double),
-    .fns = function(x) sum(x, na.rm = T),
+    .fns = function(x) sum(x),
     .names = "{col}"
   ))
 
