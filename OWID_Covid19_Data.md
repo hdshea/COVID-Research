@@ -108,26 +108,36 @@ site*](https://covid.ourworldindata.org/).
 
 #### Countries with Highest Change in Cases Over the Past Month
 
-| location    | date       | cases\_change | deaths\_change |
-|:------------|:-----------|--------------:|---------------:|
-| Yemen       | 2021-04-19 |          1.79 |           1.54 |
-| Thailand    | 2021-04-19 |          1.58 |           1.16 |
-| Philippines | 2021-04-19 |          1.44 |           1.24 |
-| Turkey      | 2021-04-19 |          1.44 |           1.21 |
-| India       | 2021-04-19 |          1.32 |           1.13 |
-| Poland      | 2021-04-19 |          1.32 |           1.26 |
+| location    | date       | cases\_change |
+|:------------|:-----------|--------------:|
+| Yemen       | 2021-04-19 |          1.79 |
+| Thailand    | 2021-04-19 |          1.58 |
+| Philippines | 2021-04-19 |          1.44 |
+| Turkey      | 2021-04-19 |          1.44 |
+| India       | 2021-04-19 |          1.32 |
+| Poland      | 2021-04-19 |          1.32 |
 
-<img src="OWID_Covid19_Data_files/figure-gfm/problem_areas_cases-1.png" width="70%" style="display: block; margin: auto;" />
+<img src="OWID_Covid19_Data_files/figure-gfm/problem_areas_cases-1.png" width="90%" style="display: block; margin: auto;" />
 
-#### Highest Change in Deaths Over the Past Month
+#### Countries with Highest Change in Deaths Over the Past Month
 
-| location  | date       | cases\_change | deaths\_change |
-|:----------|:-----------|--------------:|---------------:|
-| Yemen     | 2021-04-19 |      1.787065 |       1.535957 |
-| Ukraine   | 2021-04-19 |      1.265762 |       1.332153 |
-| Venezuela | 2021-04-19 |      1.228128 |       1.298045 |
-| Ethiopia  | 2021-04-19 |      1.312377 |       1.281451 |
-| Brazil    | 2021-04-19 |      1.169302 |       1.279861 |
-| Poland    | 2021-04-19 |      1.323379 |       1.263919 |
+| location  | date       | deaths\_change |
+|:----------|:-----------|---------------:|
+| Yemen     | 2021-04-19 |       1.535957 |
+| Ukraine   | 2021-04-19 |       1.332153 |
+| Venezuela | 2021-04-19 |       1.298045 |
+| Ethiopia  | 2021-04-19 |       1.281451 |
+| Brazil    | 2021-04-19 |       1.279861 |
+| Poland    | 2021-04-19 |       1.263919 |
 
-<img src="OWID_Covid19_Data_files/figure-gfm/problem_areas_deaths-1.png" width="70%" style="display: block; margin: auto;" />
+<img src="OWID_Covid19_Data_files/figure-gfm/problem_areas_deaths-1.png" width="90%" style="display: block; margin: auto;" />
+
+### Testing
+
+#### Tests per 100 People
+
+<img src="OWID_Covid19_Data_files/figure-gfm/test_per_1000-1.png" width="70%" style="display: block; margin: auto;" /><img src="OWID_Covid19_Data_files/figure-gfm/test_per_1000-2.png" width="70%" style="display: block; margin: auto;" /><img src="OWID_Covid19_Data_files/figure-gfm/test_per_1000-3.png" width="70%" style="display: block; margin: auto;" /><img src="OWID_Covid19_Data_files/figure-gfm/test_per_1000-4.png" width="70%" style="display: block; margin: auto;" /><img src="OWID_Covid19_Data_files/figure-gfm/test_per_1000-5.png" width="70%" style="display: block; margin: auto;" /><img src="OWID_Covid19_Data_files/figure-gfm/test_per_1000-6.png" width="70%" style="display: block; margin: auto;" /><img src="OWID_Covid19_Data_files/figure-gfm/test_per_1000-7.png" width="70%" style="display: block; margin: auto;" />
+
+#### Positivity Rates
+
+<img src="OWID_Covid19_Data_files/figure-gfm/positivity_rate-1.png" width="70%" style="display: block; margin: auto;" /><img src="OWID_Covid19_Data_files/figure-gfm/positivity_rate-2.png" width="70%" style="display: block; margin: auto;" /><img src="OWID_Covid19_Data_files/figure-gfm/positivity_rate-3.png" width="70%" style="display: block; margin: auto;" /><img src="OWID_Covid19_Data_files/figure-gfm/positivity_rate-4.png" width="70%" style="display: block; margin: auto;" /><img src="OWID_Covid19_Data_files/figure-gfm/positivity_rate-5.png" width="70%" style="display: block; margin: auto;" /><img src="OWID_Covid19_Data_files/figure-gfm/positivity_rate-6.png" width="70%" style="display: block; margin: auto;" /><img src="OWID_Covid19_Data_files/figure-gfm/positivity_rate-7.png" width="70%" style="display: block; margin: auto;" />

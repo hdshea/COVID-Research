@@ -9,12 +9,14 @@ output:
 
 ```{r setup, include = FALSE}
 library(tidyverse)
-library(rvest)
-library(timetk)
 library(lubridate)
-library(broom)
 library(knitr)
-library(httr)
+library(dichromat)
+library(cartography)
+# library(rvest)
+# library(timetk)
+# library(broom)
+# library(httr)
 
 knitr::opts_chunk$set(
     connection = "secdb", # automatically uses this connection in sql chunks 
@@ -46,6 +48,25 @@ owid_full_metadata <- tibble(read.csv(owid_full_metadata_url))
 owid_full_dataset <- tibble(read.csv(owid_full_dataset_url)) %>%
   mutate(date = as.Date(date)) %>%
   arrange(location, date)
+
+# location groupings used in analyses
+top_50_pop <- owid_full_dataset %>%
+  filter(date == (max(unique(owid_full_dataset$date)) - 1)) %>%
+  filter(!str_starts(iso_code, "OWID")) %>%
+  arrange(desc(population)) %>%
+  filter(row_number() <= 50) %>%
+  pull(location)
+
+regions <- c("Africa", "Asia", "Europe", "North America", "Oceania", "South America")
+G7 <- c("Canada", "France", "Germany", "Italy", "Japan", "United Kingdom", "United States")
+
+# select countries (from top 50 populations) by region
+americas <- c("United States", "Brazil", "Mexico", "Colombia", "Argentina", "Canada", "Peru", "Venezuela")
+se_asia <- c("India", "Indonesia", "Pakistan", "Bangladesh", "Philippines", "Vietnam", "Thailand", "Myanmar", "Malaysia")
+west_asia <- c("China", "Japan", "South Korea")
+mid_east <- c("Iran", "Iraq", "Saudi Arabia")
+africa <- c("Nigeria", "Ethiopia", "Egypt", "Tanzania", "South Africa", "Kenya", "Uganda", "Algeria", "Sudan")
+europe <- c("Germany", "France", "United Kingdom", "Italy", "Spain", "Russia", "Turkey", "Ukraine", "Poland")
 ```
 
 ## Dataset Overview
@@ -74,6 +95,7 @@ owid_full_dataset %>%
   geom_line(color = "orange") +
   theme(legend.position = "none") +
   geom_line(aes(x = date, y = new_deaths_smoothed * coeff), color = "red") +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %y") +
   scale_y_continuous(
     labels = scales::comma,
     name = "Cases",
@@ -91,7 +113,8 @@ owid_full_dataset %>%
     subtitle = "7-Day Smoothed",
     caption = "Source:  Our World in Data",
     x = "Date"
-  )
+  ) +
+  scale_colour_brewer(palette = "Dark2")
 ```
 
 ### US Cases versus Deaths
@@ -104,6 +127,7 @@ owid_full_dataset %>%
   geom_line(color = "orange") +
   theme(legend.position = "none") +
   geom_line(aes(x = date, y = new_deaths_smoothed * coeff), color = "red") +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %y") +
   scale_y_continuous(
     labels = scales::comma,
     name = "Cases",
@@ -121,18 +145,18 @@ owid_full_dataset %>%
     subtitle = "7-Day Smoothed",
     caption = "Source:  Our World in Data",
     x = "Date"
-  )
+  ) +
+  scale_colour_brewer(palette = "Dark2")
 ```
 
 ### Global Regions
 
 ```{r region_cases_and_deaths, include = TRUE, warning = FALSE, echo = FALSE}
-regions <- c("Africa", "Asia", "Europe", "North America", "Oceania", "South America")
-
 owid_full_dataset %>%
   filter(location %in% regions) %>% 
   ggplot(aes(date, new_cases_smoothed / 1000, color = location)) +
   geom_line() +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %y") +
   theme(legend.position = "bottom") +
   labs(
     title = "Cases by Region",
@@ -140,11 +164,14 @@ owid_full_dataset %>%
     color = "Region",
     x = "Date",
     y = "7-Day Smoothed (000)"
-  )
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
 owid_full_dataset %>%
   filter(location %in% regions) %>% 
   ggplot(aes(date, new_deaths_smoothed, color = location)) +
   geom_line() +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %y") +
   theme(legend.position = "bottom") +
   labs(
     title = "Deaths by Region",
@@ -152,18 +179,12 @@ owid_full_dataset %>%
     color = "Region",
     x = "Date",
     y = "7-Day Smoothed"
-  )
+  ) +
+  scale_colour_brewer(palette = "Dark2")
 ```
 
 ### Current Problem Areas
 ```{r problem_areas, include = TRUE, warning = FALSE, echo = FALSE}
-top_50_pop <- owid_full_dataset %>%
-  filter(date == (max(unique(owid_full_dataset$date)) - 1)) %>%
-  filter(!str_starts(iso_code, "OWID")) %>%
-  arrange(desc(population)) %>%
-  filter(row_number() <= 50) %>%
-  pull(location)
-
 top_6_change_cases <- owid_full_dataset %>%
   filter(date >= (max(unique(owid_full_dataset$date)) - 35)) %>%
   filter(location %in% top_50_pop) %>%
@@ -172,7 +193,7 @@ top_6_change_cases <- owid_full_dataset %>%
     deaths_change = round(total_deaths / lag(total_deaths, 30),2)
     ) %>%
   filter(date == (max(unique(owid_full_dataset$date)) - 1)) %>%
-  select(location, date, cases_change, deaths_change) %>%
+  select(location, date, cases_change) %>%
   arrange(desc(cases_change)) %>%
   filter(row_number() <= 6)
 
@@ -184,20 +205,21 @@ top_6_change_deaths <- owid_full_dataset %>%
     deaths_change = total_deaths / lag(total_deaths, 30)
   ) %>%
   filter(date == (max(unique(owid_full_dataset$date)) - 1)) %>%
-  select(location, date, cases_change, deaths_change) %>%
+  select(location, date, deaths_change) %>%
   arrange(desc(deaths_change)) %>%
   filter(row_number() <= 6)
 ```
 
 #### Countries with Highest Change in Cases Over the Past Month
 
-```{r problem_areas_cases, include = TRUE, warning = FALSE, echo = FALSE}
+```{r problem_areas_cases, include = TRUE, warning = FALSE, echo = FALSE, out.width = "90%"}
 top_6_change_cases %>% kable()
 
 owid_full_dataset %>%
   filter(location %in% (top_6_change_cases %>% pull(location))) %>%
   ggplot(aes(date, new_cases_smoothed / 1000)) +
   geom_line() +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %y") +
   facet_wrap(~location, scales = "free") +
   theme(legend.position = "bottom") +
   labs(
@@ -205,18 +227,20 @@ owid_full_dataset %>%
     caption = "Source:  Our World in Data",
     x = "Date",
     y = "7-Day Smoothed Cases (000)"
-  )
+  ) +
+  scale_colour_brewer(palette = "Dark2")
 ```
 
-#### Highest Change in Deaths Over the Past Month
+#### Countries with Highest Change in Deaths Over the Past Month
 
-```{r problem_areas_deaths, include = TRUE, warning = FALSE, echo = FALSE}
+```{r problem_areas_deaths, include = TRUE, warning = FALSE, echo = FALSE, out.width = "90%"}
 top_6_change_deaths %>% kable()
 
 owid_full_dataset %>%
   filter(location %in% (top_6_change_deaths %>% pull(location))) %>%
   ggplot(aes(date, new_deaths_smoothed)) +
   geom_line() +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %y") +
   facet_wrap(~location, scales = "free") +
   theme(legend.position = "bottom") +
   labs(
@@ -224,5 +248,288 @@ owid_full_dataset %>%
     caption = "Source:  Our World in Data",
     x = "Date",
     y = "7-Day Smoothed Deaths"
-  )
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+```
+
+### Testing
+
+#### Tests per 100 People
+
+```{r test_per_1000, include = TRUE, warning = FALSE, echo = FALSE}
+# Most countries were reporting tests by May 2020
+xlim <- ymd('2020-05-01')
+
+owid_full_dataset %>%
+  filter(location %in% G7) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, new_tests_smoothed_per_thousand) %>% 
+  ggplot(aes(date, new_tests_smoothed_per_thousand, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "New Tests per 1000 People",
+    subtitle = "G7 Countries",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Smoothed"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
+owid_full_dataset %>%
+  filter(location %in% americas) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, new_tests_smoothed_per_thousand) %>% 
+  ggplot(aes(date, new_tests_smoothed_per_thousand, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "New Tests per 1000 People",
+    subtitle = "Americas (Larger Populations)",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Smoothed"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
+owid_full_dataset %>%
+  filter(location %in% se_asia) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, new_tests_smoothed_per_thousand) %>% 
+  ggplot(aes(date, new_tests_smoothed_per_thousand, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "New Tests per 1000 People",
+    subtitle = "Southeast Asia (Larger Populations)",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Smoothed"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
+owid_full_dataset %>%
+  filter(location %in% west_asia) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, new_tests_smoothed_per_thousand) %>% 
+  ggplot(aes(date, new_tests_smoothed_per_thousand, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "New Tests per 1000 People",
+    subtitle = "Western Asia (Larger Populations)",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Smoothed"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
+owid_full_dataset %>%
+  filter(location %in% mid_east) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, new_tests_smoothed_per_thousand) %>% 
+  ggplot(aes(date, new_tests_smoothed_per_thousand, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "New Tests per 1000 People",
+    subtitle = "Mideast (Larger Populations)",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Smoothed"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
+owid_full_dataset %>%
+  filter(location %in% africa) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, new_tests_smoothed_per_thousand) %>% 
+  ggplot(aes(date, new_tests_smoothed_per_thousand, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "New Tests per 1000 People",
+    subtitle = "Africa (Larger Populations)",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Smoothed"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
+owid_full_dataset %>%
+  filter(location %in% europe) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, new_tests_smoothed_per_thousand) %>% 
+  ggplot(aes(date, new_tests_smoothed_per_thousand, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "New Tests per 1000 People",
+    subtitle = "Europe (Larger Populations)",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Smoothed"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+```
+
+#### Positivity Rates
+
+```{r positivity_rate, include = TRUE, warning = FALSE, echo = FALSE}
+# Most countries were reporting tests by May 2020
+xlim <- ymd('2020-05-01')
+
+owid_full_dataset %>%
+  filter(location %in% G7) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, positive_rate) %>% 
+  ggplot(aes(date, positive_rate, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Positivity Rate",
+    subtitle = "G7 Countries",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Rolling Average"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
+owid_full_dataset %>%
+  filter(location %in% americas) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, positive_rate) %>% 
+  ggplot(aes(date, positive_rate, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Positivity Rate",
+    subtitle = "Americas (Larger Populations)",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Rolling Average"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
+owid_full_dataset %>%
+  filter(location %in% se_asia) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, positive_rate) %>% 
+  ggplot(aes(date, positive_rate, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Positivity Rate",
+    subtitle = "Southeast Asia (Larger Populations)",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Rolling Average"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
+owid_full_dataset %>%
+  filter(location %in% west_asia) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, positive_rate) %>% 
+  ggplot(aes(date, positive_rate, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Positivity Rate",
+    subtitle = "Western Asia (Larger Populations)",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Rolling Average"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
+owid_full_dataset %>%
+  filter(location %in% mid_east) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, positive_rate) %>% 
+  ggplot(aes(date, positive_rate, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Positivity Rate",
+    subtitle = "Mideast (Larger Populations)",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Rolling Average"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
+owid_full_dataset %>%
+  filter(location %in% africa) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, positive_rate) %>% 
+  ggplot(aes(date, positive_rate, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Positivity Rate",
+    subtitle = "Africa (Larger Populations)",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Rolling Average"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
+owid_full_dataset %>%
+  filter(location %in% europe) %>% 
+  filter(date >= xlim) %>% 
+  arrange(location, date) %>% 
+  select(location, date, positive_rate) %>% 
+  ggplot(aes(date, positive_rate, color = location)) +
+  geom_line() +
+  scale_x_date(limits = c(xlim, NA), date_breaks = "1 month", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Positivity Rate",
+    subtitle = "Europe (Larger Populations)",
+    caption = "Source:  Our World in Data",
+    color = "Country",
+    x = "Date",
+    y = "7-Day Rolling Average"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
 ```

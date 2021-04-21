@@ -1,4 +1,5 @@
 library(tidyverse)
+library(lubridate)
 
 # OWID Corona Virus data
 owid_full_metadata_url <- "https://covid.ourworldindata.org/data/owid-covid-codebook.csv"
@@ -69,3 +70,9 @@ owid_full_dataset %>%
     y = "7-Day Smoothed Deaths"
   )
 
+G7 <- c("Canada", "France", "Germany", "Italy", "Japan", "United Kingdom", "United States")
+owid_full_dataset %>%
+  filter(location %in% G7) %>%
+  filter(date >= ymd('2020-05-20')) %>%
+  arrange(location, date) %>%
+  select(location, date, new_tests_smoothed_per_thousand)
