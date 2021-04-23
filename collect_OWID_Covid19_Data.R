@@ -76,3 +76,21 @@ owid_full_dataset %>%
   filter(date >= ymd('2020-05-20')) %>%
   arrange(location, date) %>%
   select(location, date, new_tests_smoothed_per_thousand)
+
+
+regions <- c("Africa", "Asia", "Europe", "North America", "Oceania", "South America")
+owid_full_dataset %>%
+  filter(location %in% regions) %>%
+  ggplot(aes(date, new_cases_smoothed / 1000, color = location)) +
+  geom_line() +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %y") +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Cases by Region",
+    caption = "Source:  Our World in Data",
+    color = "Region",
+    x = "Date",
+    y = "7-Day Smoothed (000)"
+  ) +
+  scale_colour_brewer(palette = "Dark2")
+
