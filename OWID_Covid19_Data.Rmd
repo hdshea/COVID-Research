@@ -208,7 +208,7 @@ owid_full_metadata %>% select(column, description) %>% kable()
 ```{r global_cases_and_deaths, include = TRUE, warning = FALSE, echo = FALSE}
 owid_full_dataset %>%
   filter(location == "World") %>% 
-  cvd_plot(., "World Cases vs. Deaths")
+  cvd_plot("World Cases vs. Deaths")
 ```
 
 ### US Cases versus Deaths
@@ -216,7 +216,7 @@ owid_full_dataset %>%
 ```{r us_cases_and_deaths, include = TRUE, warning = FALSE, echo = FALSE}
 owid_full_dataset %>%
   filter(location == "United States") %>% 
-  cvd_plot(., "U.S. Cases vs. Deaths")
+  cvd_plot("U.S. Cases vs. Deaths")
 ```
 
 ### Global Regions
@@ -224,11 +224,11 @@ owid_full_dataset %>%
 ```{r region_cases_and_deaths, include = TRUE, warning = FALSE, echo = FALSE}
 owid_full_dataset %>%
   filter(location %in% regions) %>% 
-  cases_plot(., "Cases by Region", "Region")
+  cases_plot("Cases by Region", "Region")
 
 owid_full_dataset %>%
   filter(location %in% regions) %>% 
-  deaths_plot(., "Deaths by Region", "Region")
+  deaths_plot("Deaths by Region", "Region")
 ```
 
 ### Current Problem Areas
@@ -265,7 +265,7 @@ top_6_change_cases %>% kable()
 
 owid_full_dataset %>%
   filter(location %in% (top_6_change_cases %>% pull(location))) %>%
-  cases_facet_plot(., "Cases in Country")
+  cases_facet_plot("Cases in Country")
 ```
 
 #### Countries with Highest Change in Deaths Over the Past Month
@@ -275,7 +275,7 @@ top_6_change_deaths %>% kable()
 
 owid_full_dataset %>%
   filter(location %in% (top_6_change_deaths %>% pull(location))) %>%
-  deaths_facet_plot(., "Deaths in Country")
+  deaths_facet_plot("Deaths in Country")
 ```
 
 ### Testing
@@ -292,7 +292,7 @@ filter_and_plot <- function(filter, label) {
     filter(date >= xlim) %>% 
     arrange(location, date) %>% 
     select(location, date, new_tests_smoothed_per_thousand) %>% 
-    tests_plot(., label, "Country")
+    tests_plot(label, "Country")
 }
 
 filter_set <- list(G7, americas, se_asia, west_asia, mid_east, africa, europe)
@@ -304,7 +304,8 @@ label_set <- list("G7 Countries", "Americas (Larger Populations)", "Southeast As
 for(idx in seq_along(filter_set)) {
   show(filter_and_plot(c(filter_set[[idx]]), label_set[[idx]]))
 }
-rm(filter_and_plot)
+
+rm(filter_and_plot, filter_set, label_set)
 ```
 
 #### Positivity Rates
@@ -319,7 +320,7 @@ filter_and_plot <- function(filter, label) {
     filter(date >= xlim) %>% 
     arrange(location, date) %>% 
     select(location, date, positive_rate) %>% 
-    pr_plot(., label, "Country")
+    pr_plot(label, "Country")
 }
 
 filter_set <- list(G7, americas, se_asia, west_asia, mid_east, africa, europe)
@@ -332,5 +333,5 @@ for(idx in seq_along(filter_set)) {
   show(filter_and_plot(c(filter_set[[idx]]), label_set[[idx]]))
 }
 
-rm(filter_and_plot)
+rm(filter_and_plot, filter_set, label_set)
 ```

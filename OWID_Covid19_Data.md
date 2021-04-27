@@ -110,25 +110,25 @@ site*](https://covid.ourworldindata.org/).
 
 | location    | date       | cases\_change |
 |:------------|:-----------|--------------:|
-| Yemen       | 2021-04-21 |          1.70 |
-| Thailand    | 2021-04-21 |          1.67 |
-| Turkey      | 2021-04-21 |          1.46 |
-| Philippines | 2021-04-21 |          1.43 |
-| India       | 2021-04-21 |          1.36 |
-| Poland      | 2021-04-21 |          1.31 |
+| Thailand    | 2021-04-25 |          1.94 |
+| Yemen       | 2021-04-25 |          1.57 |
+| Turkey      | 2021-04-25 |          1.47 |
+| India       | 2021-04-25 |          1.45 |
+| Philippines | 2021-04-25 |          1.42 |
+| Iran        | 2021-04-25 |          1.30 |
 
 <img src="OWID_Covid19_Data_files/figure-gfm/problem_areas_cases-1.png" width="90%" style="display: block; margin: auto;" />
 
 #### Countries with Highest Change in Deaths Over the Past Month
 
-| location  | date       | deaths\_change |
-|:----------|:-----------|---------------:|
-| Yemen     | 2021-04-21 |       1.487678 |
-| Ukraine   | 2021-04-21 |       1.343719 |
-| Venezuela | 2021-04-21 |       1.308256 |
-| Ethiopia  | 2021-04-21 |       1.299177 |
-| Brazil    | 2021-04-21 |       1.291275 |
-| Poland    | 2021-04-21 |       1.285789 |
+| location    | date       | deaths\_change |
+|:------------|:-----------|---------------:|
+| Thailand    | 2021-04-25 |       1.521739 |
+| Yemen       | 2021-04-25 |       1.447561 |
+| Ukraine     | 2021-04-25 |       1.334251 |
+| Venezuela   | 2021-04-25 |       1.326636 |
+| Ethiopia    | 2021-04-25 |       1.282412 |
+| Philippines | 2021-04-25 |       1.276371 |
 
 <img src="OWID_Covid19_Data_files/figure-gfm/problem_areas_deaths-1.png" width="90%" style="display: block; margin: auto;" />
 
